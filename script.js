@@ -1,3 +1,74 @@
+const search = async () => {
+  const query = document
+    .getElementById('search-input')
+    .value.trim()
+    .toLowerCase();
+
+  if (!query) {
+    alert('Please enter a Pokémon name or ID.');
+    return;
+  }
+
+  const apiUrl = `https://pokeapi-proxy.freecodecamp.rocks/api/pokemon/${query}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error('Pokémon not found');
+    }
+
+    const data = await response.json();
+
+    clearPokemonDetails();
+    createPokemonDetails();
+    displayPokemonData(data);
+  } catch (err) {
+    alert(err.message);
+    console.log(err);
+    clearPokemonDetails();
+  } finally {
+    document.getElementById('search-input').value = '';
+  }
+};
+
+const displayPokemonData = (data) => {
+  document.getElementById('pokemon-name').innerText = data.name.toUpperCase();
+  document.getElementById('pokemon-id').innerText = `#${data.id}`;
+  document.getElementById('weight').innerText = `  ${data.weight}`;
+  document.getElementById('height').innerText = `  ${data.height}`;
+  document.getElementById('hp').innerText = `  ${data.stats[0].base_stat}`;
+  document.getElementById('attack').innerText = `  ${data.stats[1].base_stat}`;
+  document.getElementById('defense').innerText = `  ${data.stats[2].base_stat}`;
+  document.getElementById(
+    'special-attack'
+  ).innerText = `  ${data.stats[3].base_stat}`;
+  document.getElementById(
+    'special-defense'
+  ).innerText = `  ${data.stats[4].base_stat}`;
+  document.getElementById('speed').innerText = `  ${data.stats[5].base_stat}`;
+
+  const typesContainer = document.getElementById('types');
+
+  data.types.forEach((typeInfo) => {
+    const typeElement = document.createElement('div');
+    typeElement.classList = `type ${typeInfo.type.name}`;
+    typeElement.innerText = typeInfo.type.name.toUpperCase();
+    typesContainer.appendChild(typeElement);
+
+    document.getElementById(
+      'screen'
+    ).classList = `screen ${typeInfo.type.name}`;
+    document.getElementById(
+      'details-screen'
+    ).classList = `details-screen ${typeInfo.type.name}`;
+  });
+
+  const sprite = document.getElementById('sprite');
+  sprite.src = data.sprites.front_default;
+  sprite.hidden = false;
+  console.log(sprite.src);
+};
+
 document.getElementById('search-button').addEventListener('click', search);
 
 document
@@ -8,77 +79,7 @@ document
     }
   });
 
-document
-  .getElementById('clear-button')
-  .addEventListener('click', clearPokemonDetails);
-
-function search() {
-  const query = document
-    .getElementById('search-input')
-    .value.trim()
-    .toLowerCase();
-  const apiUrl = `https://pokeapi-proxy.freecodecamp.rocks/api/pokemon/${query}`;
-
-  fetch(apiUrl)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error('Pokémon not found');
-      }
-      return res.json();
-    })
-    .then((data) => {
-      clearPokemonDetails();
-      createPokemonDetails();
-      document.getElementById('pokemon-name').innerText =
-        data.name.toUpperCase();
-      document.getElementById('pokemon-id').innerText = `#${data.id}`;
-      document.getElementById('weight').innerText = `  ${data.weight}`;
-      document.getElementById('height').innerText = `  ${data.height}`;
-      document.getElementById('hp').innerText = `  ${data.stats[0].base_stat}`;
-      document.getElementById(
-        'attack'
-      ).innerText = `  ${data.stats[1].base_stat}`;
-      document.getElementById(
-        'defense'
-      ).innerText = `  ${data.stats[2].base_stat}`;
-      document.getElementById(
-        'special-attack'
-      ).innerText = `  ${data.stats[3].base_stat}`;
-      document.getElementById(
-        'special-defense'
-      ).innerText = `  ${data.stats[4].base_stat}`;
-      document.getElementById(
-        'speed'
-      ).innerText = `  ${data.stats[5].base_stat}`;
-
-      const typesContainer = document.getElementById('types');
-      data.types.forEach((typeInfo) => {
-        const typeElement = document.createElement('div');
-        typeElement.classList = `type ${typeInfo.type.name}`;
-        typeElement.innerText = typeInfo.type.name.toUpperCase();
-        typesContainer.appendChild(typeElement);
-        document.getElementById(
-          'screen'
-        ).classList = `screen ${typeInfo.type.name}`;
-        document.getElementById(
-          'details-screen'
-        ).classList = `details-screen ${typeInfo.type.name}`;
-      });
-
-      const sprite = document.getElementById('sprite');
-      sprite.src = data.sprites.front_default;
-      sprite.hidden = false;
-    })
-    .catch((err) => {
-      alert(err.message);
-      console.log(err);
-      clearPokemonDetails();
-    });
-
-  document.getElementById('search-input').value = '';
-}
-
-function clearPokemonDetails() {
+const clearPokemonDetails = () => {
   document.getElementById('pokemon-name').innerText = '';
   document.getElementById('pokemon-id').innerText = '';
   document.getElementById('weight').innerText = '';
@@ -102,9 +103,9 @@ function clearPokemonDetails() {
   document.getElementById('speed-detail').innerText = '';
   document.getElementById('screen').classList = `screen`;
   document.getElementById('details-screen').classList = `details-screen`;
-}
+};
 
-function createPokemonDetails() {
+const createPokemonDetails = () => {
   document.getElementById('weight-detail').innerText = 'Weight: ';
   document.getElementById('height-detail').innerText = 'Height: ';
   document.getElementById('hp-detail').innerText = 'Hp: ';
@@ -113,7 +114,11 @@ function createPokemonDetails() {
   document.getElementById('special-attack-detail').innerText = 'Sp. Attack: ';
   document.getElementById('special-defense-detail').innerText = 'Sp. Defense: ';
   document.getElementById('speed-detail').innerText = 'Speed: ';
-}
+};
+
+document
+  .getElementById('clear-button')
+  .addEventListener('click', clearPokemonDetails);
 
 const btnContainer = document.getElementById('btn-container');
 
